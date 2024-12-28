@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Center</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script>
+        let loggedInUserId = localStorage.getItem('loggedInUserId');
+        let loggedInUsername = localStorage.getItem('loggedInUsername');
+
+        function showUserCenter() {
+            if (!loggedInUserId) {
+                alert('请登录以访问用户中心。');
+                window.location.href = '/login'; // 重定向到登录页面
+                return;
+            }
+            document.getElementById('user-info-section').style.display = 'block';
+            document.getElementById('change-password-section').style.display = 'none';
+            document.getElementById('orders-section').style.display = 'none';
+            loadUserInfo();
+            loadUserOrders();
+        }
+
+        async function loadUserInfo() {
+            const response = await fetch(`/users/${loggedInUserId}`);
+            if (response.ok) {
+                const user = await response.json();
+                document.getElementById('username').textContent = user.username;
+                document.getElementById('age').value = user.age || '';
+                document.getElementById('gender').value = user.gender || '';
+                document.getElementById('bio').value = user.bio || '';
+                document.getElementById('avatar').src = user.avatarUrl || 'default-avatar.png';
+            } else {
+                alert('加载用户信息失败');
+            }
+        }
+
+        async function loadUserOrders() {
+            const response = await fetch(`/users/${loggedInUserId}/orders`);
+            if (response.ok) {
+                const orders = await response.json();
+                let ordersHtml = '';
+                orders.forEach(order => {
+                    ordersHtml += `
+                        <tr>
+                            <td>${order.orderNumber}</td>
+                            <td>${order.totalPrice}</td>
+                            <td>${order.paymentStatus ? 'Paid' : 'Unpaid'}</td>
+                            <td>${order.items.map(item => item.title).join(', ')}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('orders-table-body').innerHTML = ordersHtml;
+            } else {
+                alert('加载用户订单失败');
+            }
+        }
+
+        async function updateUserInfo(event) {
+            event.preventDefault();
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const bio = document.getElementById('bio').value;
+            const avatarUrl = document.getElementById('avatar-url').value;
+
+            const response = await fetch(`/users/${loggedInUserId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ age, gender, bio, avatarUrl })
+            });
+
+            if (response.ok) {
+                alert('用户信息提交成功');
+                loadUserInfo();
+            } else {
+                alert('更新用户信息失败');
+            }
+        }
+
+        async function updatePassword(event) {
+            event.preventDefault();
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+
+            const response = await fetch(`/users/${loggedInUserId}/password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            if (response.ok) {
+                alert('密码修改成功');
+                logoutUser(); // 修改密码后登出
+            } else {
+                alert('密码修改失败');
+            }
+        }
+
+        async function deleteUser(event) {
+            event.preventDefault();
+            const password = prompt('请输入您的密码以确认本人进行帐户删除操作：');
+            if (password) {
+                const response = await fetch(`/users/${loggedInUserId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+
+                if (response.ok) {
+                    alert('已成功删除帐户');
+                    logoutUser(); // 注销账号后登出
+                } else {
+                    alert('无法删除帐户');
+                }
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('loggedInUserId'); // 清除本地存储中的用户ID
+            localStorage.removeItem('loggedInUsername'); // 清除本地存储中的用户名
+            loggedInUserId = null;
+            loggedInUsername = '';
+            window.location.href = '/';
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!loggedInUserId) {
+                alert('请登录以访问用户中心。');
+                window.location.href = '/login'; // 重定向到登录页面
+                return;
+            }
+            showUserCenter();
+        });
+    </script>
+</head>
+<body>
+    <h1>用户中心</h1>
+    <div id="user-info-section">
+        <h2>用户信息管理</h2>
+        <form onsubmit="updateUserInfo(event)">
+            <table>
+                <tr>
+                    <td><label for="username">用户名：</label></td><td><p id="username"></p></td>
+                </tr>
+                <tr>
+                    <td><label for="age">年龄：</label></td><td><input type="number" id="age" placeholder="年龄"></td>
+                </tr>
+                <tr>
+                    <td><label for="gender">性别：</label></td><td><input type="text" id="gender" placeholder="性别"></td>
+                </tr>
+                <tr>
+                    <td><label for="bio">个性签名:</label></td><td><textarea id="bio" placeholder="个性签名"></textarea></td>
+                </tr>
+                <tr>
+                    <td>头像 ：</td><td><img id="avatar" src="default-avatar.png" alt="Avatar" width="100"></td>
+                </tr>
+                <tr><td></td><td><button type="submit">提交信息</button></td></tr>
+            </table>
+            <br>
+        </form>
+    </div>
+    <div id="change-password-section" style="display: none;">
+        <h2>更改密码</h2>
+        <form onsubmit="updatePassword(event)">
+            <label for="current-password">当前密码：</label>
+            <input type="password" id="current-password" placeholder="当前密码" required>
+            <label for="new-password">新密码：</label>
+            <input type="password" id="new-password" placeholder="新密码" required>
+            <button type="submit">确认修改密码</button>
+        </form>
+    </div>
+    <div id="orders-section" style="display: none;">
+        <h2>我的订单</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>总价</th>
+                    <th>付款状态</th>
+                    <th>书籍信息</th>
+                </tr>
+            </thead>
+            <tbody id="orders-table-body">
+                <!-- 订单数据将由JavaScript动态生成 -->
+            </tbody>
+        </table>
+    </div>
+    <table><tr>
+        <td><button onclick="toggleSection('change-password-section')">&emsp;更改密码&emsp;</button></td>
+        <td><button onclick="toggleSection('orders-section')">&emsp;显示订单&emsp;</button></td>
+        <td><button onclick="logoutUser()">&emsp;&emsp;登出&emsp;&emsp;</button></td>
+        <td><button class="delete-button" onclick="deleteUser(event)">删除帐户</button></td>
+    </tr></table>
+
+
+
+
+</body>
+</html>

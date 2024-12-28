@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索书籍</title>
+    <link rel="stylesheet" th:href="@{/css/search.css}">
+    <script>
+        let loggedInUserId = localStorage.getItem('loggedInUserId');
+        let loggedInUsername = localStorage.getItem('loggedInUsername');
+        let addedBooks = new Set(); // 初始化addedBooks变量
+
+        function showSearchPage() {
+            document.getElementById('welcome-message').textContent = `欢迎回来，${loggedInUsername}！`;
+        }
+
+        function goBack() {
+            window.location.href = '/userCenter'
+        }
+
+        async function addToCart(bookId, button) {
+            if (!loggedInUserId) {
+                alert('请登录以将商品添加到您的购物车。');
+                return;
+            }
+            const requestData = { id: bookId };
+            const response = await fetch(`/users/${loggedInUserId}/cart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            if (response.ok) {
+                alert('已加入购物车');
+                addedBooks.add(bookId);
+                button.textContent = '已添加';
+                button.classList.add('added');
+                button.disabled = true; // 禁用按钮
+            } else {
+                alert('添加到购物车失败');
+            }
+        }
+
+        async function checkCartItems() {
+    const response = await fetch(`/users/${loggedInUserId}/cart`);
+    if (response.ok) {
+        const cartItems = await response.json();
+        const bookIdsInCart = cartItems.map(book => book.id);
+        updateCartButtons(bookIdsInCart);
+    } else {
+        alert('无法加载购物车商品');
+    }
+}
+
+        function updateCartButtons(bookIdsInCart) {
+            const bookList = document.getElementById('book-list');
+            const bookItems = bookList.getElementsByTagName('li');
+            for (let item of bookItems) {
+                const bookId = item.getAttribute('data-book-id');
+                const addButton = item.querySelector('.add-to-cart-button');
+                if (bookIdsInCart.includes(parseInt(bookId))) {
+                    addButton.textContent = '已添加到购物车';
+                    addButton.classList.add('added');
+                    addButton.disabled = true;
+                } else {
+                    addButton.textContent = '添加到购物车';
+                    addButton.classList.remove('added');
+                    addButton.disabled = false;
+                }
+            }
+        }
+
+        function logoutUser() {
+            loggedInUserId = null;
+            loggedInUsername = '';
+            window.location.href = '/'
+        }
+
+
+        document.addEventListener('DOMContentLoaded', showSearchPage);
+    </script>
+</head>
+<body onload="checkCartItems()">
+    <h1>在线书城 —— 搜索书籍</h1>
+    <div id="welcome-section">
+        <img id="avatar" src="default-avatar.png" alt="Avatar" width="100" onclick="showUserCenter()">
+        <table><tr><td><p id="welcome-message"></p></td><td><button onclick="logoutUser()">登出</button></td></tr></table>
+
+    </div>
+    <div id="search-section">
+        <form action="/search" method="get">
+            <input type="text" name="query" id="search-query" placeholder="输入关键词">
+            <button type="submit">搜索</button>
+        </form>
+        <ul id="book-list" th:each="book : ${books}">
+            <li th:data-book-id="${book.id}" class="book-item">
+                <img th:src="${book.imageUrl}" th:alt="${book.title}" class="book-cover">
+                <div>
+                    <h3 th:text="${book.title}"></h3>
+                    <p><strong>ISBN编号：</strong> <span th:text="${book.isbn}"></span></p>
+                    <p><strong>发布日期：</strong> <span th:text="${book.publishDate}"></span></p>
+                    <p><strong>作者：</strong> <span th:text="${book.authors}"></span></p>
+                    <p><strong>出版商：</strong> <span th:text="${book.publisher}"></span></p>
+                    <p><strong>价格：</strong> <span th:text="${book.price}"></span></p>
+                    <div id="des">
+                        <strong>介绍：</strong> <span th:text="${book.description}"></span>
+                        <br><br>
+                        <button type="button" class="add-to-cart-button" th:onclick="'addToCart(' + ${book.id} + ', this)'">加入购物车</button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <br><br>
+        <button type="button" onclick="goBack()">返回</button>
+    </div>
+</body>
+</html>

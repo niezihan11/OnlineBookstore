@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>订单管理</title>
+    <link rel="stylesheet" href="1.css">
+    <script>
+        function toggleAddressDetails(id) {
+            var details = document.getElementById(id);
+            details.classList.toggle('active');
+        }
+
+        function showUpdateAddress(id) {
+            var updateSection = document.getElementById(id);
+            updateSection.classList.toggle('active');
+        }
+
+        function toggleProductDetails(id) {
+            var details = document.getElementById(id);
+            details.classList.toggle('active');
+        }
+    </script>
+</head>
+<body>
+    <h1>在线书城 —— 订单管理</h1>
+    <p id="welcome">欢迎管理员用户： <strong>admin</strong>&emsp;&emsp;&emsp;&emsp;<button>安全退出</button></p>
+    <br><br><br><br><br><br><br>
+    <h2>订单管理</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>订单编号</th>
+                <th>用户</th>
+                <th>总价</th>
+                <th>商品明细</th>
+                <th>支付状态</th>
+                <th>收货地址</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- root用户的订单 -->
+            <tr>
+                <td>17352873293244257</td>
+                <td>root</td>
+                <td>328.00</td>
+                <td>
+                    三体: 23.00
+                    <button onclick="toggleProductDetails('product1')">详情</button>
+                    <div id="product1" class="product-details">
+                        三体: 23.00<br>
+                        三体Ⅱ : 黑暗森林: 32.00<br>
+                        素食者: 48.00<br>
+                        长安的荔枝: 45.00<br>
+                        ASP.NET动态网站开发: 30.00<br>
+                        北大讲座（第二十四辑）: 39.00<br>
+                        不同寻常的一天: 13.50<br>
+                        仓储与配送管理项目式教程: 38.00<br>
+                        操盘大赢家: 36.00<br>
+                        传播心理学教程: 28.00
+                    </div>
+                </td>
+                <td>已支付</td>
+                <td>
+                    江西省
+                    <button onclick="toggleAddressDetails('address1')">详情</button>
+                    <div id="address1" class="address-details">
+                        南昌市东湖区
+                    </div>
+                </td>
+                <td>
+                    <button onclick="showUpdateAddress('update1')">修改地址</button>
+                    <div id="update1" class="update-address">
+                        <input type="text" placeholder="新地址">
+                        <button>保存</button>
+                    </div>
+                    <button class="delete-button">删除</button>
+                </td>
+            </tr>
+            <tr>
+                <td>17352873293244258</td>
+                <td>root</td>
+                <td>320.00</td>
+                <td>
+                    词韵人生: 26.00
+                    <button onclick="toggleProductDetails('product2')">详情</button>
+                    <div id="product2" class="product-details">
+                        词韵人生: 26.00<br>
+                        当我们走在异国他乡: 32.00<br>
+                        短线必杀技: 32.00<br>
+                        多文化与国家建设: 78.00<br>
+                        格萨尔唐卡研究: 1800.00<br>
+                        公司法学: 42.00<br>
+                        国学研究（第29卷）: 60.00<br>
+                        海事法: 88.00<br>
+                        红楼梦: 78.00<br>
+                        会计电算化实务: 35.00
+                    </div>
+                </td>
+                <td>已支付</td>
+                <td>
+                    江西省
+                    <button onclick="toggleAddressDetails('address2')">详情</button>
+                    <div id="address2" class="address-details">
+                        南昌市东湖区
+                    </div>
+                </td>
+                <td>
+                    <button onclick="showUpdateAddress('update2')">修改地址</button>
+                    <div id="update2" class="update-address">
+                        <input type="text" placeholder="新地址">
+                        <button>保存</button>
+                    </div>
+                    <button class="delete-button">删除</button>
+                </td>
+            </tr>
+            <tr>
+                <td>17352873293244259</td>
+                <td>root</td>
+                <td>290.00</td>
+                <td>
+                    机械设计基础… : 28.00
+                    <button onclick="toggleProductDetails('product3')">详情</button>
+                    <div id="product3" class="product-details">
+                        机械设计基础实验及机构创新设计: 28.00<br>
+                        集团转移定价、定价参与和组织后果: 29.00<br>
+                        交通事故车辆安全技术鉴定教程: 45.00<br>
+                        经济法学: 45.00<br>
+                        居住区景观设计: 47.00<br>
+                        跨过青春这道坎: 26.00<br>
+                        里外更新: 29.00<br>
+                        卢作孚文集: 78.00<br>
+                        吗叫天津人: 48.00<br>
+                        茫: 23.00
+                    </div>
+                </td>
+                <td>已支付</td>
+                <td>
+                    江西省
+                    <button onclick="toggleAddressDetails('address3')">详情</button>
+                    <div id="address3" class="address-details">
+                        南昌市东湖区
+                    </div>
+                </td>
+                <td>
+                    <button onclick="showUpdateAddress('update3')">修改地址</button>
+                    <div id="update3" class="update-address">
+                        <input type="text" placeholder="新地址">
+                        <button>保存</button>
+                    </div>
+                    <button class="delete-button">删除</button>
+                </td>
+            </tr>
+            <tr>
+                <td>17352873293244260</td>
+                <td>halooo</td>
+                <td>328.00</td>
+                <td>
+                    操盘大赢家: 36.00
+                    <button onclick="toggleProductDetails('product4')">详情</button>
+                    <div id="product4" class="product-details">
+                        三体: 23.00<br>
+                        三体Ⅱ : 黑暗森林: 32.00<br>
+                        素食者: 48.00<br>
+                        长安的荔枝: 45.00<br>
+                        ASP.NET动态网站开发: 30.00<br>
+                        北大讲座（第二十四辑）: 39.00<br>
+                        不同寻常的一天: 13.50<br>
+                        仓储与配送管理项目式教程: 38.00<br>
+                        操盘大赢家: 36.00<br>
+                        传播心理学教程: 28.00
+                    </div>
+                </td>
+                <td>已支付</td>
+                <td>
+                    广东省
+                    <button onclick="toggleAddressDetails('address4')">详情</button>
+                    <div id="address4" class="address-details">
+                        广州市天河区
+                    </div>
+                </td>
+                <td>
+                    <button onclick="showUpdateAddress('update4')">修改地址</button>
+                    <div id="update4" class="update-address">
+                        <input type="text" placeholder="新地址">
+                        <button>保存</button>
+                    </div>
+                    <button class="delete-button">删除</button>
+                </td>
+            </tr>
+            <tr>
+                <td>17352873293244261</td>
+                <td>halooo</td>
+                <td>320.00</td>
+                <td>
+                    词韵人生: 26.00
+                    <button onclick="toggleProductDetails('product5')">详情</button>
+                    <div id="product5" class="product-details">
+                        词韵人生: 26.00<br>
+                        当我们走在异国他乡: 32.00<br>
+                        短线必杀技: 32.00<br>
+                        多文化与国家建设: 78.00<br>
+                        格萨尔唐卡研究: 1800.00<br>
+                        公司法学: 42.00<br>
+                        国学研究（第29卷）: 60.00<br>
+                        海事法: 88.00<br>
+                        红楼梦: 78.00<br>
+                        会计电算化实务: 35.00
+                    </div>
+                </td>
+                <td>已支付</td>
+                <td>
+                    广东省
+                    <button onclick="toggleAddressDetails('address5')">详情</button>
+                    <div id="address5" class="address-details">
+                        广东省广州市天河区天府路1号天河大厦A座15楼1501室
+                    </div>
+                </td>
+                <td>
+                    <button onclick="showUpdateAddress('update5')">修改地址</button>
+                    <div id="update5" class="update-address">
+                        <input type="text" placeholder="新地址">
+                        <button>保存</button>
+                    </div>
+                    <button class="delete-button">删除</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

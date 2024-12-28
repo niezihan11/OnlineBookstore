@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单管理</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <h1>订单管理</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>订单编号</th>
+                <th>用户</th>
+                <th>总价</th>
+                <th>支付状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.orderNumber}"></td>
+                <td th:text="${order.user.username}"></td>
+                <td th:text="${order.totalPrice}"></td>
+                <td th:text="${order.paymentStatus ? '已支付' : '未支付'}"></td>
+                <td>
+                    <form th:action="@{/admin/orders/update}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" th:value="${order.id}">
+                        <select name="paymentStatus">
+                            <option value="true" th:selected="${order.paymentStatus}">已支付</option>
+                            <option value="false" th:selected="${!order.paymentStatus}">未支付</option>
+                        </select>
+                        <button type="submit">更新</button>
+                    </form>
+                    <form th:action="@{/admin/orders/delete}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" th:value="${order.id}">
+                        <button type="submit" class="delete-button">删除</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

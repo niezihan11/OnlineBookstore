@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Book Management</title>
+    <link rel="stylesheet" th:href="@{/css/styles1.css}">
+    <script>
+        let loggedInAdminId = null;
+
+        async function loginAdmin(event) {
+            event.preventDefault();
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            const response = await fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const admin = await response.json();
+                loggedInAdminId = admin.id;
+                localStorage.setItem('loggedInAdminId', admin.id);
+                document.getElementById('admin-login-form').style.display = 'none';
+                document.getElementById('book-management').style.display = 'block';
+                loadBooks(); // 加载书籍列表
+            } else {
+                alert('登录失败：（ 请检查账号或密码是否正确');
+            }
+        }
+
+        function checkAdminLogin() {
+            const adminId = localStorage.getItem('loggedInAdminId');
+            if (adminId) {
+                loggedInAdminId = adminId;
+                document.getElementById('admin-login-form').style.display = 'none';
+                document.getElementById('book-management').style.display = 'block';
+                loadBooks(); // 加载书籍列表
+            }
+        }
+
+        async function addBook(event) {
+            event.preventDefault();
+            const title = document.getElementById('book-title').value;
+            const isbn = document.getElementById('book-isbn').value;
+            const publishDate = document.getElementById('book-publish-date').value;
+            const authors = document.getElementById('book-authors').value;
+            const publisher = document.getElementById('book-publisher').value;
+            const price = document.getElementById('book-price').value;
+            const description = document.getElementById('book-description').value;
+            const onShelf = document.getElementById('book-on-shelf').checked;
+
+            const response = await fetch('/books', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, isbn, publishDate, authors, publisher, price, description, onShelf })
+            });
+
+            if (response.ok) {
+                const book = await response.json();
+                alert('已成功添加书籍《' + title + '》');
+                uploadImage(book.id); // 上传图书封面
+            } else {
+                alert('添加书籍失败！');
+            }
+        }
+
+        async function updateField(bookId, field) {
+            console.log('Update book with ID:', bookId, 'Field:', field);  // 调试输出
+            const value = prompt(`请输入新的 ${field}:`);
+
+            if (value !== null) {
+                // 获取当前书籍的数据
+                const response = await fetch(`/books/${bookId}`);
+                if (response.ok) {
+                    const book = await response.json();
+                    var old = book[field];
+                    // 更新指定字段的值
+                    book[field] = field === 'onShelf' ? value.toLowerCase() === 'true' : value; // 确保 onShelf 字段是布尔值
+
+                    // 提交更新后的书籍数据
+                    const updateResponse = await fetch(`/books/${bookId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(book)
+                    });
+
+                    if (updateResponse.ok) {
+                        alert(`书籍信息修改成功（${old} -> ${book[field]}）`);
+                        location.reload();
+                    } else {
+                        alert('书籍信息修改失败');
+                    }
+                } else {
+                    alert('无法获取书籍数据');
+                }
+            }
+        }
+
+        async function deleteBook(bookId) {
+            console.log('删除书籍:', bookId);
+            const response = await fetch(`/books/${bookId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('已成功删除书籍信息');
+                location.reload();
+            } else {
+                alert('删除书籍信息失败');
+            }
+        }
+
+        async function uploadImage(bookId) {
+            const formData = new FormData();
+            const imageFile = document.getElementById(`image-${bookId}`).files[0];
+            formData.append("image", imageFile);
+
+            const response = await fetch(`/books/${bookId}/uploadImage`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('图片上传成功');
+                loadBooks();
+            } else {
+                alert('图片上传失败');
+            }
+        }
+
+        function toggleAddBookForm() {
+            const form = document.getElementById('add-book-form');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        async function loadBooks() {
+            const response = await fetch('/books');
+            if (response.ok) {
+                const books = await response.json();
+                let bookList = '';
+                books.forEach(book => {
+                    bookList += `
+                        <li>
+                            <h3>${book.title}</h3>
+                            <p><strong>ISBN编号：</strong> ${book.isbn}</p>
+                            <p><strong>发布日期：</strong> ${book.publishDate}</p>
+                            <p><strong>作者：</strong> ${book.authors}</p>
+                            <p><strong>出版商：</strong> ${book.publisher}</p>
+                            <p><strong>价格：</strong> ${book.price}</p>
+                            <p><strong>介绍：</strong> ${book.description}</p>
+                            <p><strong>封面图片</strong> <img src="${book.imageUrl}" alt="${book.title}" width="100"></p>
+                            <input type="file" id="image-${book.id}">
+                            <button type="button" onclick="uploadImage(${book.id})">上传</button>
+                            <div class="button-group">
+                                <button type="button" onclick="updateField(${book.id}, 'title')">编辑标题</button>
+                                <button type="button" onclick="updateField(${book.id}, 'isbn')">编辑 ISBN编号</button>
+                                <button type="button" onclick="updateField(${book.id}, 'publishDate')">编辑发布日期</button>
+                                <button type="button" onclick="updateField(${book.id}, 'authors')">编辑作者名字</button>
+                                <button type="button" onclick="updateField(${book.id}, 'publisher')">编辑出版商信息</button>
+                                <button type="button" onclick="updateField(${book.id}, 'price')">修改价格</button>
+                                <button type="button" onclick="updateField(${book.id}, 'description')">修改介绍信息</button>
+                                <button type="button" onclick="updateField(${book.id}, 'onShelf')">修改上架状态</button>
+                                <button type="button" onclick="deleteBook(${book.id})">删除书籍</button>
+                            </div>
+                        </li>
+                    `;
+                });
+                document.getElementById('book-list').innerHTML = bookList;
+            } else {
+                alert('加载书籍信息失败');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', checkAdminLogin);
+    </script>
+</head>
+<body>
+    <h1>线上书籍商店系统 —— 管理员</h1>
+    <div id="admin-login-form" class="container">
+        <h2>管理员登录</h2>
+        <form onsubmit="loginAdmin(event)">
+            <input type="text" id="admin-username" placeholder="帐号" required>
+            <input type="password" id="admin-password" placeholder="密码" required>
+            <button type="submit">登录</button>
+        </form>
+    </div>
+    <div id="book-management" class="container" style="display:none;">
+        <h2>书籍信息管理系统</h2>
+        <div id="add-book-section">
+            <button type="button" onclick="toggleAddBookForm()">添加书籍信息</button>
+            <form id="add-book-form" style="display:none;" onsubmit="addBook(event)">
+    <table>
+        <tr>
+            <td><label for="book-title">标题</label></td>
+            <td><input type="text" id="book-title" placeholder="标题" required></td>
+        </tr>
+        <tr>
+            <td><label for="book-isbn">ISBN编号</label></td>
+            <td><input type="text" id="book-isbn" placeholder="ISBN编号" required></td>
+        </tr>
+        <tr>
+            <td><label for="book-publish-date">发布日期</label></td>
+            <td><input type="text" id="book-publish-date" placeholder="发布日期" required></td>
+        </tr>
+        <tr>
+            <td><label for="book-authors">作者</label></td>
+            <td><input type="text" id="book-authors" placeholder="作者" required></td>
+        </tr>
+        <tr>
+            <td><label for="book-publisher">出版商</label></td>
+            <td><input type="text" id="book-publisher" placeholder="出版商" required></td>
+        </tr>
+        <tr>
+            <td><label for="book-price">价格</label></td>
+            <td><input type="number" id="book-price" placeholder="价格" required></td>
+        </tr>
+        <tr>
+            <td><label for="book-description">介绍</label></td>
+            <td><textarea id="book-description" placeholder="介绍" required></textarea></td>
+        </tr>
+        <tr>
+            <td><label for="book-on-shelf">是否上架</label></td>
+            <td><input type="checkbox" id="book-on-shelf"></td>
+        </tr>
+        <tr>
+            <td><label for="book-image">书籍封面图片</label></td>
+            <td><input type="file" id="book-image" required></td>
+        </tr>
+    </table>
+    <button type="submit">&emsp;&emsp; 确认&emsp; &emsp; </button>
+</form>
+
+        </div>
+        <ul id="book-list"></ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>在线书城</title>
+    <link rel="stylesheet" th:href="@{/css/user.css}">
+    <script>
+        let loggedInUserId = null;
+        let loggedInUsername = ''; // 初始化用户名变量
+        let addedBooks = new Set(); // 初始化addedBooks变量
+
+        function showLogin() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('register-section').style.display = 'none';
+            document.getElementById('books-section').style.display = 'none';
+            document.getElementById('cart-section').style.display = 'none';
+            document.getElementById('welcome-section').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('register-section').style.display = 'block';
+            document.getElementById('books-section').style.display = 'none';
+            document.getElementById('cart-section').style.display = 'none';
+            document.getElementById('welcome-section').style.display = 'none';
+        }
+
+        function showBooks() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('register-section').style.display = 'none';
+            document.getElementById('books-section').style.display = 'block';
+            document.getElementById('cart-section').style.display = 'none';
+            document.getElementById('welcome-section').style.display = 'block';
+            document.getElementById('welcome-message').textContent = `欢迎来到网上书籍商店 ，               ${loggedInUsername}！`;
+        }
+
+        async function registerUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const email = document.getElementById('register-email').value;
+
+            const response = await fetch('/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, email })
+            });
+
+            if (response.ok) {
+                alert('注册成功');
+                showLogin();
+            } else {
+                alert('注册失败');
+            }
+        }
+
+        async function loginUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            const response = await fetch('/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                loggedInUserId = user.id;
+                loggedInUsername = user.username; // 保存用户名
+                localStorage.setItem('loggedInUserId', loggedInUserId); // 保存用户ID到localStorage
+                localStorage.setItem('loggedInUsername', loggedInUsername); // 保存用户名到localStorage
+                alert('登录成功');
+                loadBooks();
+            } else {
+                alert('登录失败');
+            }
+        }
+
+        async function loadBooks()  {
+    const response = await fetch('/books');
+    if (response.ok) {
+        const books = await response.json();
+        let bookList = '';
+        books.forEach(book => {
+            if (book.onShelf) {
+                bookList += `
+                    <li data-book-id="${book.id}" class="book-item">
+                        <img src="${book.imageUrl}" alt="${book.title}" class="book-cover">
+                        <div>
+                            <h3>${book.title}</h3>
+                            <p><strong>ISBN编号：</strong> ${book.isbn}</p>
+                            <p><strong>发布日期：</strong> ${book.publishDate}</p>
+                            <p><strong>作者：</strong> ${book.authors}</p>
+                            <p><strong>出版商：</strong> ${book.publisher}</p>
+                            <p><strong>价格：</strong> ${book.price}</p>
+                            <div id="des">
+                            <strong>介绍：</strong> ${book.description}
+                            <br><br>
+                            <button type="button" class="add-to-cart-button" onclick="addToCart(${book.id}, this)">加入购物车</button>
+                             </div>
+                         </div>
+                    </li>
+                `;
+            }
+        });
+        document.getElementById('book-list').innerHTML = bookList;
+        checkCartItems(); // 调用检查购物车的函数
+        showBooks();
+    } else {
+        alert('加载书籍信息失败');
+    }
+}
+
+        async function checkCartItems() {
+    const response = await fetch(`/users/${loggedInUserId}/cart`);
+    if (response.ok) {
+        const cartItems = await response.json();
+        const bookIdsInCart = cartItems.map(book => book.id);
+        updateCartButtons(bookIdsInCart);
+    } else {
+        alert('无法加载购物车商品');
+    }
+}
+
+        function updateCartButtons(bookIdsInCart) {
+    const bookList = document.getElementById('book-list');
+    const bookItems = bookList.getElementsByTagName('li');
+    for (let item of bookItems) {
+        const bookId = item.getAttribute('data-book-id');
+        const addButton = item.querySelector('.add-to-cart-button');
+        if (bookIdsInCart.includes(parseInt(bookId))) {
+            addButton.textContent = '已添加到购物车';
+            addButton.classList.add('added');
+            addButton.disabled = true;
+        } else {
+            addButton.textContent = '添加到购物车';
+            addButton.classList.remove('added');
+            addButton.disabled = false;
+        }
+    }
+}
+
+        async function addToCart(bookId, button) {
+            if (!loggedInUserId) {
+                alert('请登录以将商品添加到您的购物车。');
+                return;
+            }
+
+            const requestData = { id: bookId };
+            const response = await fetch(`/users/${loggedInUserId}/cart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (response.ok) {
+                alert('已加入购物车');
+                addedBooks.add(bookId);
+                button.textContent = '已添加';
+                button.classList.add('added');
+                button.disabled = true; // 禁用按钮
+            } else {
+                alert('添加到购物车失败');
+            }
+        }
+
+        async function viewCart() {
+    if (!loggedInUserId) {
+        alert('请登录以查看您的购物车。');
+        return;
+    }
+
+    const response = await fetch(`/users/${loggedInUserId}/cart`);
+    if (response.ok) {
+        const cart = await response.json();
+        let cartItems = '';
+        let things = ''
+        if (cart.length === 0) {
+            cartItems = '<li>您的购物车是空的。</li>';
+        } else {
+            cart.forEach(book => {
+                cartItems += `
+                    <tr> <td><input type="checkbox" class="cart-item" data-id="${book.id}" data-price="${book.price}" data-title="${book.title}" data-authors="${book.authors}" data-isbn="${book.isbn}" data-image-url="${book.imageUrl}"></td> <td>${book.title}</td> <td>${book.authors}</td> <td>${book.price}</td> <td><button type="button" onclick="removeFromCart(${book.id})">删除</button></td> </tr>
+                `;
+            });
+        }
+        document.getElementById('cart-items').innerHTML = '<table class="cart-table">' + cartItems + '</table>';
+        showCart();
+    } else {
+        alert('加载购物车失败');
+    }
+}
+
+        async function removeFromCart(bookId) {
+            if (!loggedInUserId) {
+                alert('请登录以从您的购物车中删除商品。');
+                return;
+            }
+
+            const response = await fetch(`/users/${loggedInUserId}/cart/${bookId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                alert('已从购物车中删除');
+                addedBooks.delete(bookId);
+                viewCart();
+            } else {
+                alert('删除失败');
+            }
+        }
+
+        async function clearCart() {
+            if (!loggedInUserId) {
+                alert('请登录以清空您的购物车。');
+                return;
+            }
+
+            const response = await fetch(`/users/${loggedInUserId}/cart`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                alert('购物车已清空');
+                addedBooks.clear();
+                viewCart();
+            } else {
+                alert('清空购物车失败');
+            }
+        }
+
+        function showCart() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('register-section').style.display = 'none';
+            document.getElementById('books-section').style.display = 'none';
+            document.getElementById('cart-section').style.display = 'block';
+        }
+
+        function calculateTotal() {
+    const checkboxes = document.querySelectorAll('.cart-item:checked');
+    if (checkboxes.length === 0) {
+        alert('请选择要购买的商品。');
+        return;
+    }
+
+    let selectedItems = [];
+    checkboxes.forEach(checkbox => {
+        const bookId = checkbox.getAttribute('data-id');
+        const price = parseFloat(checkbox.getAttribute('data-price'));
+        const title = checkbox.getAttribute('data-title');
+        const authors = checkbox.getAttribute('data-authors');
+        const isbn = checkbox.getAttribute('data-isbn');
+        const imageUrl = checkbox.getAttribute('data-image-url');
+        selectedItems.push({ id: bookId, price: price, title: title, authors: authors, isbn: isbn, imageUrl: imageUrl });
+    });
+
+    localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+    window.location.href = '/order-confirmation'; // 跳转到订单确认页面
+}
+
+        function logoutUser() {
+            loggedInUserId = null;
+            loggedInUsername = '';
+            addedBooks.clear();
+            showLogin();
+        }
+
+        function showUserCenter() {
+            window.location.href = '/userCenter'; // 跳转到用户中心页面
+        }
+
+        function goToSearchPage() {
+            localStorage.setItem('loggedInUserId', loggedInUserId); // 保存用户ID到localStorage
+            localStorage.setItem('loggedInUsername', loggedInUsername); // 保存用户名到localStorage
+            localStorage.setItem('addedBooks', addedBooks);
+            window.location.href = '/search';
+        }
+        document.addEventListener('DOMContentLoaded', showLogin);
+    </script>
+</head>
+<body>
+    <h1>在线书城 —— 商店</h1>
+    <div id="welcome-section" style="display:none;">
+        <table ><tr><td>
+            <img id="avatar" src="default-avatar.png" alt="Avatar" width="100" onclick="showUserCenter()">
+        </td><td>
+            <p id="welcome-message"></p>
+        </td><td><button onclick="logoutUser()">登出</button></td></tr></table>
+
+    </div>
+
+<div id="login-section">
+    <h2>在线书籍商店</h2>
+    <form onsubmit="loginUser(event)">
+        <input type="text" id="login-username" placeholder="用户名" required>
+        <input type="password" id="login-password" placeholder="密码" required>
+        <button type="submit">登录</button>
+    </form>
+    <button onclick="showRegister()" class="secondary-button">注册</button>
+</div>
+<div id="register-section" style="display:none;">
+    <h2>注册账号</h2>
+    <form onsubmit="registerUser(event)">
+        <input type="text" id="register-username" placeholder="帐号" required>
+        <input type="password" id="register-password" placeholder="密码" required>
+        <input type="email" id="register-email" placeholder="电子邮件" required>
+        <button type="submit">注册</button>
+    </form>
+    <button onclick="showLogin()" class="secondary-button">Back to Login</button>
+</div>
+
+    <div id="books-section" style="display:none;">
+        <h2>书籍商品列表</h2>
+        <button type="button" onclick="goToSearchPage()">搜索书籍</button>
+        <ul id="book-list"></ul>
+        <button type="button" onclick="viewCart()" id="postition">购物车</button>
+    </div>
+
+
+    <div id="cart-section" style="display:none;">
+        <h2>购物车</h2>
+        <ul id="cart-items"></ul>
+        <br><br>
+        <div class="button-group">
+            <button type="button" onclick="calculateTotal()">去结算</button>
+            <button type="button" onclick="clearCart()">清空购物车</button>
+            <button type="button" onclick="showBooks()">回到书籍商店</button>
+        </div>
+    </div>
+</body>
+</html>
