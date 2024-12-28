@@ -1,0 +1,225 @@
+/* 基础样式 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+h1, h2 {
+    color: #333;
+    text-align: center;
+}
+
+h3 {
+    text-align: center;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 居中对齐 */
+    border: 1px solid #ccc; /* 添加边框 */
+    padding: 20px; /* 添加内边距 */
+    border-radius: 8px; /* 添加圆角 */
+    background-color: #e6f7ff; /* 背景颜色 */
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%; /* 使输入框和按钮宽度一致 */
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.secondary-button {
+    background-color: #6c757d; /* 灰色背景 */
+    color: #fff;
+    margin-top: 10px; /* 增加按钮之间的间距 */
+}
+
+.secondary-button:hover {
+    background-color: #5a6268; /* 深灰色背景 */
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    background-color: #fff;
+    margin: 30px 0; /* 增加间距 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+li:hover {
+    transform: translateY(-2px);
+}
+
+li h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.25em; /* 调整标题的大小 */
+}
+
+li p {
+    margin: 0 0 10px 0;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"], select {
+    transition: border-color 0.3s ease;
+    flex: 1;
+}
+
+input[type="text"]:focus, select:focus {
+    border-color: #007bff;
+}
+
+button {
+    padding: 10px; /* 调整按钮的大小 */
+    margin: 0; /* 移除多余的margin */
+}
+
+button + button {
+    margin-top: 10px; /* 按钮之间的间距 */
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.form-group input, .form-group select {
+    flex: 1;
+    margin: 5px;
+}
+
+.form-group label {
+    flex-basis: 100%;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.button-group button {
+    flex: 1 1 calc(33.333% - 10px); /* 三等分，并有一点间距 */
+    margin: 5px;
+}
+
+#search-section {
+    text-align: center;
+    margin-bottom: 30px; /* 增加与搜索部分的间距 */
+}
+
+#search-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #e6f7ff; /* 背景颜色 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#book-list {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.book-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.book-cover {
+    width: 100px;
+    height: 150px;
+    margin-right: 20px;
+    border-radius: 4px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.book-details {
+    flex: 1;
+}
+
+.book-details h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.25em; /* 调整标题的大小 */
+}
+
+.book-details p {
+    margin: 0 0 10px 0;
+}
+
+.add-to-cart-button {
+    background-color: #28a745; /* 绿色背景 */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.add-to-cart-button:hover {
+    background-color: #218838; /* 深绿色背景 */
+    transform: translateY(-2px);
+}
+
+.delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+}

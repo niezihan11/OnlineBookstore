@@ -1,0 +1,203 @@
+/* 基础样式 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+h1, h2 {
+    color: #333;
+    text-align: center;
+}
+
+h3 {
+    text-align: center;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input, textarea, button {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+textarea {
+    height: 100px; /* 设定固定高度 */
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    background-color: #fff;
+    margin: 30px 0; /* 增加间距 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+li:hover {
+    transform: translateY(-2px);
+}
+
+li h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.25em; /* 调整标题的大小 */
+}
+
+li p {
+    margin: 0 0 10px 0;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"], input[type="number"], textarea {
+    transition: border-color 0.3s ease;
+    flex: 1;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+    border-color: #007bff;
+}
+
+button {
+    padding: 10px; /* 调整按钮的大小 */
+    margin: 0; /* 移除多余的margin */
+}
+
+button + button {
+    margin-top: 10px; /* 按钮之间的间距 */
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.form-group input, .form-group textarea {
+    flex: 1;
+    margin: 5px;
+}
+
+.form-group label {
+    flex-basis: 100%;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.button-group button {
+    flex: 1 1 calc(33.333% - 10px); /* 三等分，并有一点间距 */
+    margin: 5px;
+}
+
+#add-book-section {
+    text-align: center;
+    margin-bottom: 30px; /* 增加与修改书部分的间距 */
+}
+
+#add-book-form {
+    display: none;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+#add-book-form.expanded {
+    display: block;
+    max-height: 800px; /* 大于表单实际高度的值 */
+}
+/* 表单美化 */
+form {
+    width: 100%;
+    max-width: 600px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form table {
+    width: 100%;
+}
+
+form table td {
+    padding: 5px;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="file"],
+form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form input[type="checkbox"] {
+    margin-left: 10px;
+}
+
+form button {
+    width: 100%;
+    padding: 8px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
