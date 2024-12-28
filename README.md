@@ -16,8 +16,10 @@
 ### 1. 克隆项目
 
 git
-
-
+```bash
+git clone https://github.com/your-repo/onlinebookstore.git
+cd onlinebookstore
+```
 
 复制工程包中的OnlineBookstore文件夹到你的项目保存路径
 
